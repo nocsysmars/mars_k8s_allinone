@@ -109,7 +109,7 @@ COPY ./ssl.crt /etc/nginx/
 COPY ./ssl.key /etc/nginx/
 COPY ./mime.types /etc/nginx/
 COPY ./nginx.conf /etc/nginx/
-COPY ./public /opt
+COPY ./public/ /opt/public
 
 
 EXPOSE 69 80 443
