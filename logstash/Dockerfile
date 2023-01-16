@@ -11,3 +11,6 @@ COPY ./logstash.yml /usr/share/logstash/config/
 COPY ./types.db /usr/share/logstash/
 COPY ./default-template.json /usr/share/logstash/
 COPY ./pipeline/ /usr/share/logstash/pipeline
+
+EXPOSE 6614 5514 514 6343 5044 25826
+
