@@ -33,6 +33,15 @@ spec:
         - name: volume-qqp3ko
           persistentVolumeClaim:
             claimName: mars-download
+      initContainers:
+      - name: init-sysctl
+        image: busybox:1.27.2
+        command:
+        - sysctl
+        - -w
+        - vm.max_map_count=262144
+        securityContext:
+          privileged: true
       containers:
         - name: container-mars
           image: 'nocsysmars/mars:master'
