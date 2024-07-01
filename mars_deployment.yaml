@@ -1,8 +1,41 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sdn-mars
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: es-data
+  namespace: sdn-mars
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  #storageClassName: ""
+  volumeMode: Filesystem
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: mars-download
+  namespace: sdn-mars
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  #storageClassName: ""
+  volumeMode: Filesystem
+---
 kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: mars
-  namespace: demo-prj
+  namespace: sdn-mars
   labels:
     app: mars
   annotations:
@@ -37,9 +70,15 @@ spec:
       - name: init-sysctl
         image: busybox:1.27.2
         command:
-        - sysctl
-        - -w
-        - vm.max_map_count=262144
+            - sh
+            - '-c'
+            - >-
+              sysctl -w vm.max_map_count=262144 && chmod a+w
+              /usr/share/elasticsearch/data
+        volumeMounts:
+            - name: volume-8phuxc
+              mountPath: /usr/share/elasticsearch/data
+              subPath: data
         securityContext:
           privileged: true
       containers:
@@ -57,7 +96,7 @@ spec:
               value: clos
             - name: ONOS_APPS
               value: >-
-                drivers,com.nocsys.drivers.nocsys.gnmi,com.nocsys.drivers.nocsys.rest,com.nocsys.drivers.nocsys.snmp,proxyarp,restsb,snmp,org.onosproject.netconf,org.onosproject.drivers.netconf,org.onosproject.drivers.h3c.netconf,linkdiscovery,com.nocsys.provider.switchpolling,com.nocsys.eventclient,com.nocsys.useraccount,com.nocsys.defaultcfg,com.nocsys.alert,com.nocsys.analyzer,com.nocsys.utility,com.nocsys.healthycheck,com.nocsys.dhcprelay,com.nocsys.dhcpserver,com.nocsys.dhcpv6server,com.nocsys.logicalport,com.nocsys.endpoint,com.nocsys.monitor,com.nocsys.ntpserver,com.nocsys.qos,com.nocsys.sflow,com.nocsys.storm-control,com.nocsys.switchmgmt,com.nocsys.egp,com.nocsys.tenant,com.nocsys.tenantlogicalrouter,com.nocsys.topology,com.nocsys.acl,com.nocsys.websocket,com.nocsys.webssh
+                drivers,com.accton.drivers.accton.gnmi,com.accton.drivers.accton.rest,com.accton.drivers.accton.snmp,proxyarp,restsb,snmp,org.onosproject.netconf,org.onosproject.drivers.netconf,org.onosproject.drivers.h3c.netconf,linkdiscovery,com.accton.provider.switchpolling,com.accton.eventclient,com.accton.useraccount,com.accton.defaultcfg,com.accton.alert,com.accton.analyzer,com.accton.utility,com.accton.healthycheck,com.accton.logicalport,com.accton.endpoint,com.accton.monitor,com.accton.ntpserver,com.accton.qos,com.accton.sflow,com.accton.storm-control,com.accton.switchmgmt,com.accton.acl,com.accton.websocket,com.accton.webssh
             - name: ONOS_IP
               valueFrom:
                 fieldRef:
@@ -80,7 +119,7 @@ spec:
           terminationMessagePolicy: File
           imagePullPolicy: Always
         - name: container-nginx
-          image: 'nocsysmars/nginx:1.14.0'
+          image: 'nocsysmars/nginx:1.14.0-mars'
           ports:
             - name: tcp-443
               containerPort: 443
@@ -175,6 +214,7 @@ spec:
           volumeMounts:
             - name: volume-8phuxc
               mountPath: /usr/share/elasticsearch/data
+              subPath: data
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           imagePullPolicy: Always
@@ -192,3 +232,34 @@ spec:
       maxSurge: 25%
   revisionHistoryLimit: 10
   progressDeadlineSeconds: 600
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: mars
+  namespace: sdn-mars
+  labels:
+    app: mars
+  annotations:
+    kubesphere.io/creator: admin
+spec:
+  ports:
+    - name: web
+      protocol: TCP
+      port: 443
+      targetPort: 443
+      nodePort: 30913
+    - name: download
+      protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 31499
+  selector:
+    app: mars
+  type: NodePort
+  sessionAffinity: None
+  externalTrafficPolicy: Cluster
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  internalTrafficPolicy: Cluster

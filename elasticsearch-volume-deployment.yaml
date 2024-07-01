@@ -2,21 +2,13 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: es-data
-  namespace: demo-prj
-  annotations:
-    kubesphere.io/creator: admin
-    pv.kubernetes.io/bind-completed: 'yes'
-    pv.kubernetes.io/bound-by-controller: 'yes'
-    volume.beta.kubernetes.io/storage-provisioner: openebs.io/local
-    volume.kubernetes.io/selected-node: sq-k8sp
-  finalizers:
-    - kubernetes.io/pvc-protection
+  namespace: sdn-mars
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
       storage: 10Gi
-  volumeName: pvc-b50945bf-7160-4bf3-9c45-751f505d3c32
-  storageClassName: local
+  #volumeName: pvc-b50945bf-7160-4bf3-9c45-751f505d3c32
+  #storageClassName: ""
   volumeMode: Filesystem
