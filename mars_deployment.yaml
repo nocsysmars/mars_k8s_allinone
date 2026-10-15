@@ -83,7 +83,7 @@ spec:
           privileged: true
       containers:
         - name: container-mars
-          image: 'nocsysmars/mars:master'
+          image: 'nocsysmars/mars:sia'
           ports:
             - name: http-0
               containerPort: 8101
@@ -96,7 +96,7 @@ spec:
               value: clos
             - name: ONOS_APPS
               value: >-
-                drivers,com.accton.drivers.accton.gnmi,com.accton.drivers.accton.rest,com.accton.drivers.accton.snmp,proxyarp,restsb,snmp,org.onosproject.netconf,org.onosproject.drivers.netconf,org.onosproject.drivers.h3c.netconf,linkdiscovery,com.accton.provider.switchpolling,com.accton.eventclient,com.accton.useraccount,com.accton.defaultcfg,com.accton.alert,com.accton.analyzer,com.accton.utility,com.accton.healthycheck,com.accton.logicalport,com.accton.endpoint,com.accton.monitor,com.accton.ntpserver,com.accton.qos,com.accton.sflow,com.accton.storm-control,com.accton.switchmgmt,com.accton.acl,com.accton.websocket,com.accton.webssh
+                drivers,openflow,fwd,proxyarp,snmp,linkdiscovery,com.nocsys.alert,com.nocsys.analyzer,com.nocsys.monitor,com.nocsys.calcpath,com.nocsys.defaultcfg,com.nocsys.drivers.nocsys.gnmi,com.nocsys.drivers.nocsys.rest,com.nocsys.drivers.nocsys.snmp,com.nocsys.eventclient,com.nocsys.healthycheck,com.nocsys.ntpserver,com.nocsys.provider.switchpolling,com.nocsys.storm-control,com.nocsys.qos,com.nocsys.switchmgmt,com.nocsys.useraccount,com.nocsys.utility,com.nocsys.webssh
             - name: ONOS_IP
               valueFrom:
                 fieldRef:
@@ -119,7 +119,7 @@ spec:
           terminationMessagePolicy: File
           imagePullPolicy: Always
         - name: container-nginx
-          image: 'nocsysmars/nginx:1.14.0-mars'
+          image: 'nocsysmars/nginx:1.27.0-sia'
           ports:
             - name: tcp-443
               containerPort: 443
@@ -143,7 +143,7 @@ spec:
           terminationMessagePolicy: File
           imagePullPolicy: IfNotPresent
         - name: container-logstash
-          image: 'nocsysmars/logstash:7.5.2-oss'
+          image: 'nocsysmars/logstash:6.1.0-sia'
           ports:
             - name: tcp-25826
               containerPort: 25826
@@ -178,7 +178,7 @@ spec:
           terminationMessagePolicy: File
           imagePullPolicy: IfNotPresent
         - name: container-es
-          image: 'nocsysmars/elasticsearch:7.9.0-oss'
+          image: 'nocsysmars/elasticsearch:6.1.0-sia'
           ports:
             - name: tcp-9200
               containerPort: 9200
@@ -195,8 +195,6 @@ spec:
               value: 'true'
             - name: discovery.zen.minimum_master_nodes
               value: '1'
-            - name: cluster.initial_master_nodes
-              value: marsdb-node
             - name: node.name
               value: marsdb-node
             - name: network.host
